@@ -19,10 +19,10 @@ var current_movement_state # What state of movement are you in
 var current_attack_state # What attack are you in right now
 
 ### input booleans (for attack)
-var has_pressed_light_attack:bool
-var has_pressed_strong_attack:bool
-var has_pressed_special_attack:bool
-var has_pressed_shield:bool
+var since_pressed_light_attack:int
+var since_pressed_strong_attack:int
+var since_pressed_special_attack:int
+var since_pressed_shield:int
 
 #var has_pressed_shield:bool
 
@@ -38,10 +38,14 @@ func _ready():
 	
 	#dash_dead_zone = 2 #second
 	dash_timer = get_node("DashTimer")
-	dash_timer.start()
+	#dash_timer.start()
 	
 	dash_multiplier = 2
 	
+	since_pressed_light_attack = 0
+	since_pressed_strong_attack = 0
+	since_pressed_special_attack = 0
+	since_pressed_shield = 0
 	#is_new = true 
 	pass # Replace with function body.
 
@@ -59,25 +63,23 @@ func player_input(delta):
 	
 	input_vector = Vector2(horizontal_input, vertical_input).normalized()
 	
+	# Initilization
+	since_pressed_light_attack += 1
+	since_pressed_strong_attack += 1
+	since_pressed_special_attack += 1
+	since_pressed_shield += 1
+	#if pressed
 	if(Input.get_action_strength("light_attack") != 0):
-		has_pressed_light_attack = true
-	else:
-		has_pressed_light_attack = false
+		since_pressed_light_attack = 0
 		
 	if(Input.get_action_strength("strong_attack") != 0):
-		has_pressed_strong_attack = true
-	else:
-		has_pressed_strong_attack = false
+		since_pressed_strong_attack = 0
 	
 	if(Input.get_action_strength("special_attack") != 0):
-		has_pressed_special_attack = true
-	else:
-		has_pressed_special_attack = false
+		since_pressed_special_attack = 0
 		
 	if(Input.get_action_strength("shield") != 0):
-		has_pressed_shield = true
-	else:
-		has_pressed_shield = false
+		since_pressed_shield = 0
 	
 	pass
 
@@ -86,25 +88,27 @@ func state_handling(delta):
 	#handls the state machine of the player.
 	if(input_vector == Vector2.ZERO):
 		current_movement_state = MOVE_STATES.IDLE
+		dash_timer.stop()
 	else:
 		### dash checker code, may split off into own function
 		if(dash_timer.time_left != 0):
 			current_movement_state = MOVE_STATES.DASH
 		else:
 			current_movement_state = MOVE_STATES.WALK
+			dash_timer.start()
 		
 		#if(dash_timer.is_stopped()):
 		#	dash_timer.start()
 		#time_since_last_movement_input = 0
 		pass
 	
-	if(has_pressed_light_attack):
+	if(since_pressed_light_attack == 0):
 		current_attack_state = ATTACK_STATES.ATTACK
-	elif(has_pressed_strong_attack):
+	elif(since_pressed_strong_attack == 0):
 		current_attack_state = ATTACK_STATES.STRONG_ATK
-	elif(has_pressed_special_attack):
+	elif(since_pressed_special_attack == 0):
 		current_attack_state = ATTACK_STATES.SPECIAL_ATK
-	elif(has_pressed_shield):
+	elif(since_pressed_shield == 0):
 		current_attack_state = ATTACK_STATES.SHIELD
 	else:
 		current_attack_state = ATTACK_STATES.PEACEFUL
