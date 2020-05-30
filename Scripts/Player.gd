@@ -18,7 +18,7 @@ enum ATTACK_STATES{PEACEFUL, ATTACK, STRONG_ATK, SPECIAL_ATK, SHIELD} #list of a
 var current_movement_state # What state of movement are you in
 var current_attack_state # What attack are you in right now
 
-### input booleans (for attack)
+### frames since input of attacks buttons
 var since_pressed_light_attack:int
 var since_pressed_strong_attack:int
 var since_pressed_special_attack:int
@@ -87,15 +87,15 @@ func player_input(delta):
 func state_handling(delta):
 	#handls the state machine of the player.
 	if(input_vector == Vector2.ZERO):
+		if(current_movement_state == MOVE_STATES.WALK):
+			dash_timer.start()
 		current_movement_state = MOVE_STATES.IDLE
-		dash_timer.stop()
 	else:
 		### dash checker code, may split off into own function
-		if(dash_timer.time_left != 0):
+		if(!dash_timer.time_left != 0 and !dash_timer.is_stopped()):
 			current_movement_state = MOVE_STATES.DASH
 		else:
 			current_movement_state = MOVE_STATES.WALK
-			dash_timer.start()
 		
 		#if(dash_timer.is_stopped()):
 		#	dash_timer.start()
