@@ -10,7 +10,7 @@ var playerId
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	playerId = 0; #chooses which player to get data from based on if they are player 1 or 2 or whatever
+	playerId = 0   #chooses which player to get data from based on if they are player 1 or 2 or whatever
 	player = get_tree().get_nodes_in_group("Players")[playerId]
 	pass # Replace with function body.
 
